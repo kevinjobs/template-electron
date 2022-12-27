@@ -1,11 +1,3 @@
-/*
- * @Author       : Kevin Jobs
- * @Date         : 2022-05-09 20:48:40
- * @LastEditTime : 2022-06-09 00:10:24
- * @lastEditors  : Kevin Jobs
- * @FilePath     : \react-electron-typescript\webpack\webpack.base.js
- * @Description  : 
- */
 const path = require('path');
 const { lessLoader } = require('./rules');
 const { htmlPlugin } = require('./plugins');

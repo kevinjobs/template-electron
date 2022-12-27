@@ -3,9 +3,9 @@ const proc = require('child_process');
 const webpack = require('webpack');
 const webpackDevServer = require('webpack-dev-server');
 
-const prodConfig = require('./webpack/webpack.prod');
-const devConfig = require('./webpack/webpack.dev');
-const mainConfig = require('./webpack/main.webpack');
+const prodConfig = require('../webpack/webpack.prod');
+const devConfig = require('../webpack/webpack.dev');
+const mainConfig = require('../webpack/main.webpack');
 
 const NODE_ENV = process.env.NODE_ENV;
 
@@ -79,15 +79,19 @@ function runServer(compiler, opts, callback) {
 
 /**
  * run electron
- * @param {args} args args array
+ * @param {string[]} args args array
  */
 function runElectron(args) {
   const cmds = ["electron", args]
 
-  const child = proc.spawn("./node_modules/electron/dist/electron.exe", args, { stdio: "inherit", windowsHide: false});
+  const child = proc.spawn(
+    "./node_modules/electron/dist/electron.exe",
+    args,
+    { stdio: "inherit", windowsHide: false}
+  );
   child.on('close', function (code, signal) {
     if (code === null) {
-      console.error(electron, 'exited with signal', signal);
+      console.error('exited with signal', signal);
       process.exit(1);
     }
     process.exit(code);

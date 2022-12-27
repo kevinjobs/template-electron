@@ -1,11 +1,3 @@
-/*
- * @Author       : Kevin Jobs
- * @Date         : 2022-05-09 21:01:13
- * @LastEditTime : 2022-06-09 00:08:05
- * @lastEditors  : Kevin Jobs
- * @FilePath     : \react-electron-typescript\webpack\webpack.dev.js
- * @Description  : 
- */
 const path = require('path');
 const baseConfig = require('./webpack.base');
 const { merge } = require('webpack-merge');
