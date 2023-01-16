@@ -1,11 +1,3 @@
-/*
- * @Author       : Kevin Jobs
- * @Date         : 2022-06-08 21:54:09
- * @LastEditTime : 2022-06-08 22:00:57
- * @lastEditors  : Kevin Jobs
- * @FilePath     : \react-electron-typescript\webpack\main.webpack.js
- * @Description  : 
- */
 const path = require('path');
 const { babelTsLoader } = require("./rules");
 

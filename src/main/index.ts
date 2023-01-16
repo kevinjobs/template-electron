@@ -1,7 +1,9 @@
 import "reflect-metadata";
 import { app, BrowserWindow } from "electron";
 import path from "path";
-import { bootstrap, destroy } from "./ioc/bootstrap";
+import Eipc from "./eipc";
+import channels from "./channels";
+import MyHandler from "./handlers/my-handler";
 
 const isDev = process.env["NODE_ENV"] === "development";
 
@@ -21,7 +23,9 @@ async function createWindow() {
     },
   });
 
-  await bootstrap(w.webContents);
+  // to-do: auto import handler from handlers dir
+  const eipc = new Eipc(w.webContents, channels, [MyHandler]);
+  await eipc.init();
 
   if (isDev) w.loadURL("http://localhost:9000/").then();
   // 生产环境应使用相对地址
@@ -31,8 +35,8 @@ async function createWindow() {
   if (isDev) w.webContents.openDevTools();
 
   w.on("closed", () => {
-    destroy();
     w.destroy();
+    eipc.destory();
   })
 
   return w;
@@ -40,7 +44,8 @@ async function createWindow() {
 
 app.whenReady().then(() => {
   // create main window
-  const mainWindow = createWindow();
+  // const mainWindow = createWindow();
+  createWindow()
 
   // only in macOS
   app.on("activate", function () {

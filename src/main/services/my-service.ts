@@ -1,6 +1,6 @@
-import { Injectable } from "../ioc/decorators";
+import Eipc from "../eipc";
 
-@Injectable("MyService")
+@Eipc.Injectable("MyService")
 export class MyService {
   constructor() {
     // do nothing

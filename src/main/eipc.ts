@@ -1,0 +1,103 @@
+import 'reflect-metadata';
+import type { WebContents } from 'electron';
+import { ipcMain } from 'electron';
+
+export type Construct<T = any> = new (...args: Array<any>) => T;
+
+const EPIC_INVOKE = Symbol('ipc-invoke');
+const EPIC_ON = Symbol('ipc-on');
+
+export default class Eipc {
+  private injects = {};
+
+  constructor(
+    private webContents: WebContents,
+    private channels: { [key: string]: string },
+    private handlers: Construct[] = [],
+  ) {
+    // to load all hanlders
+  }
+
+  async init() {
+    for (const HandlerClass of this.handlers) {
+      const handler = this.factory(HandlerClass);
+      const proto = HandlerClass.prototype;
+
+      const funcs = Object.getOwnPropertyNames(proto).filter(item => {
+        return typeof handler[item] === 'function' && item !== 'constructor';
+      });
+
+      funcs.forEach(funcName => {
+        let evt: string | null = null;
+        evt = Reflect.getMetadata(EPIC_INVOKE, proto, funcName);
+        if (evt) {
+          ipcMain.handle(evt, async (e, ...args) => {
+            try {
+              const result = await handler[funcName].call(handler, ...args);
+              return { data: result }
+            } catch (err) {
+              return { err }
+            }
+          })
+        } else {
+          evt = Reflect.getMetadata(EPIC_ON, proto, funcName);
+          if (!evt) return;
+
+          const func = handler[funcName];
+          handler[funcName] = async (...args: any[]) => {
+            const result = await func.call(handler, ...args);
+            this.webContents.send(evt as string, result);
+            return result;
+          }
+        }
+      })
+    }
+  }
+
+  factory<T>(constructor: Construct<T>): T {
+    const paramtypes = Reflect.getMetadata('design:paramtypes', constructor);
+
+    const providers = paramtypes.map((provider: Construct<T>) => {
+      const name = Reflect.getMetadata('name', provider);
+      const item = this.injects[name] || this.factory(provider);
+      this.injects[name] = item;
+      return item;
+    });
+
+    return new constructor(...providers);
+  }
+
+  destory() {
+    for (const channel in this.channels) {
+      ipcMain.removeHandler(this.channels[channel]);
+    }
+
+    for (const inject in this.injects) {
+      this.injects[inject].destory && this.injects[inject].destory();
+    }
+  }
+
+  static Invoke(channel: string): MethodDecorator {
+    return (target: any, propertyName: string | symbol) => {
+      Reflect.defineMetadata(EPIC_INVOKE, channel, target, propertyName);
+    }
+  }
+
+  static On(channel: string): MethodDecorator {
+    return (target: any, propertyName: string | symbol) => {
+      Reflect.defineMetadata(EPIC_ON, channel, target, propertyName);
+    }
+  }
+
+  static Handler(): ClassDecorator {
+    return (_: object) => {
+      // do nothing
+    }
+  }
+
+  static Injectable(name: string): ClassDecorator {
+    return (target: object) => {
+      Reflect.defineMetadata('name', name, target);
+    }
+  }
+}

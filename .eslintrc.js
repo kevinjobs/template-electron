@@ -1,11 +1,3 @@
-/*
- * @Author       : Kevin Jobs
- * @Date         : 2022-06-07 22:53:19
- * @LastEditTime : 2022-06-11 06:32:54
- * @lastEditors  : Kevin Jobs
- * @FilePath     : \react-electron-typescript\.eslintrc.js
- * @Description  :
- */
 module.exports = {
   env: {
     browser: true,
@@ -28,7 +20,7 @@ module.exports = {
   ignorePatterns: [".eslintrc.js", "webpack/*", "start.js", "config/", "dist/", "out/"],
   rules: {
     indent: ["error", 2],
-    "linebreak-style": ["error", "unix"],
-    quotes: ["error", "double"],
+    // "linebreak-style": ["error", "unix"],
+    // quotes: ["error", "double"],
   },
 };
